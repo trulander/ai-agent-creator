@@ -1,0 +1,33 @@
+[project]
+name = "ai_agent_creator"
+version = "0.1.0"
+requires-python = "==3.12.*"
+description = "Ai агент для автоматической разработки проектов."
+dependencies = [
+    "Django",
+    "celery[redis]",
+    "google-generativeai",
+    "PyGithub",
+    "djangorestframework",
+    "python-dotenv",
+    "gitpython",
+    "django-celery-beat>=2.8.1",
+    "drf-yasg>=1.21.10",
+    "langchain-google-genai>=2.0.10",
+    "langchain>=0.3.26",
+    "langgraph>=0.5.1",
+    "ruff>=0.12.2",
+    "langgraph-checkpoint-sqlite>=2.0.10",
+    "ipython>=9.4.0",
+    "django-celery-results>=2.6.0",
+    "gunicorn>=23.0.0",
+]
+
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-django",
+    "celery[pytest]",
+    "respx",
+]
