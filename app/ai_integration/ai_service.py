@@ -17,6 +17,8 @@ class AIService:
                  chat_id: str,
                  repo_url: str,
                  github_token: str,
+                 github_username: str,
+                 github_email: str,
                  model: AIModels = AIModels.GEMINI_2_0_FLASH):
         logger.info(f"model: {model}")
         model = model_factory(model=model)
@@ -24,6 +26,8 @@ class AIService:
         automation = AIAutomation(
             repo_url=repo_url,
             github_token=github_token,
+            github_username=github_username,
+            github_email=github_email,
             todo_list_storage=self.todo_list_storage,
             rate_limit=10
         )

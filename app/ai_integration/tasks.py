@@ -40,6 +40,8 @@ def run_ai_agent(self, project_theme_id: int, ai_agent_task_id: str = None) -> N
             system_prompt=project_theme.system_prompt,
             chat_id=f"{project_theme.name}-{repository.name}",
             github_token=repository.github_token,
+            github_username=repository.github_username,
+            github_email=repository.github_email,
             repo_url=repository.url,
             model=model
         )

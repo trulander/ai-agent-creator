@@ -24,14 +24,19 @@ class AIAutomation:
     repo_url: str = None
     todo_list_storage: dict = None
 
-    def __init__(self, repo_url: str, github_token: str, todo_list_storage: dict, rate_limit: int):
+    def __init__(self, repo_url: str, github_token: str,github_username: str, github_email: str, todo_list_storage: dict, rate_limit: int):
         AIAutomation.todo_list_storage = todo_list_storage
         rate_limiter.update_rate_limit(new_limit=rate_limit)
         AIAutomation.github = Github(github_token)
         repo_name, user_name = self._extract_repo_name_from_url(repo_url)
         AIAutomation.repo_path = os.path.join("./repos/",user_name, repo_name)
         AIAutomation.repo_url = repo_url
-        self._clone_repository(repo_url=repo_url, local_path=AIAutomation.repo_path)
+        self._clone_repository(
+            repo_url=repo_url,
+            local_path=AIAutomation.repo_path,
+            github_username=github_username,
+            github_email=github_email
+        )
 
     @staticmethod
     def _get_pull_request(repo: Repository.Repository, pr_number: int):
@@ -59,22 +64,28 @@ class AIAutomation:
             path = path[:-4]
         return path[-1], path[-2]
 
-    def _clone_repository(self, repo_url: str, local_path: str) -> Optional[Repo]:
+    def _clone_repository(self, repo_url: str, local_path: str, github_username: str, github_email: str) -> Optional[Repo]:
         """
         Клонирует репозиторий или обновляет существующий, инициализируя ветку main, если она отсутствует.
+        Настраивает Git user.name и user.email из GitHub API.
 
         :param repo_url: URL репозитория
         :param local_path: локальный путь для клонирования
         :return: объект Repo или None при ошибке
         """
         try:
+            # Получаем данные пользователя из GitHub API
+            github_user = AIAutomation.github.get_user()
+            git_user_name = github_username or github_user.name or github_user.login  # Имя или логин
+            git_user_email = github_email or github_user.email or f"{github_user.login}@users.noreply.github.com"  # Email или заглушка
+
             if os.path.exists(local_path):
                 logger.info(f"Repository already cloned at {local_path}. Pulling latest changes.")
                 repo = Repo(local_path)
-                # repo.remotes.origin.pull('main')
-                # repo.git.checkout("main")  # Переключиться на ветку main
-                repo.git.fetch("origin")  # Получить последние изменения с удалённого репозитория
-                # repo.git.reset("--hard", "origin/main")  # Сбросить локальную ветку до состояния origin/main
+                # Настраиваем user.name и user.email для локального репозитория
+                repo.git.config('user.name', git_user_name)
+                repo.git.config('user.email', git_user_email)
+                repo.git.fetch("origin")  # Получить последние изменения
                 return repo
             else:
                 repo_name, _ = self._extract_repo_name_from_url(repo_url)
@@ -83,7 +94,10 @@ class AIAutomation:
                 )
                 repo = Repo.clone_from(repo_url_with_token, local_path)
                 logger.info(f"Repository {repo_name} cloned to {local_path}")
-                # Проверка, пустой ли репозиторий (нет веток)
+                # Настраиваем user.name и user.email для локального репозитория
+                repo.git.config('user.name', git_user_name)
+                repo.git.config('user.email', git_user_email)
+                # Проверка, пустой ли репозиторий
                 if not repo.branches:
                     logger.info("Remote repository is empty. Initializing main branch.")
                     # Создаём начальный коммит
