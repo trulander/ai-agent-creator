@@ -23,7 +23,7 @@ services:
 #    command: uv run gunicorn ai_agent_creator.wsgi:application --bind 0.0.0.0:8000 --workers 2
     command: >
       uv run sh -c "python app/manage.py collectstatic --noinput &&
-                    gunicorn ai_agent_creator.wsgi:application --bind 0.0.0.0:8000 --workers 2"
+                    gunicorn ai_agent_creator.wsgi:application --bind 0.0.0.0:8000 --workers 1"
     environment:
       - REDIS_HOST=redis://redis:6379
       - PYTHONPATH=/app/app
@@ -57,7 +57,7 @@ services:
       context: .
       dockerfile: Dockerfile
     restart: unless-stopped
-    command: uv run celery --workdir app -A ai_agent_creator worker -l info --concurrency 2
+    command: uv run celery --workdir app -A ai_agent_creator worker -l info --concurrency 1
     environment:
       - REDIS_HOST=redis://redis:6379
     volumes:
