@@ -176,7 +176,7 @@ CELERY_CONFIGURATION = {
     },
     "beat_scheduler": "django_celery_beat.schedulers.DatabaseScheduler",
     "beat_sync_every": 1,
-    "result_expires": 604800,
+    "result_expires": 60480,
 }
 # CELERY_CONFIG_FROM_FILE = get_env("CELERY_CONFIG_FROM_FILE", False)
 
